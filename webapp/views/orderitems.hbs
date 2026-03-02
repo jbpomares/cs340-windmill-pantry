@@ -1,0 +1,115 @@
+<h2>OrderItems (M:M: Orders ↔ MenuItems)</h2>
+<p><a href="/">← Back to Home</a></p>
+
+<div class="card">
+  <h3 style="margin-top:0;">Insert OrderItem</h3>
+  <form method="POST" action="/orderitems/insert">
+    <div class="grid">
+      <div>
+        <label>Order</label>
+        <select name="OrderID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each orderOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Menu Item</label>
+        <select name="MenuItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each menuItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input name="Quantity" type="number" step="1" min="1" required />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;"><button class="primary" type="submit">Insert</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Update OrderItem</h3>
+  <form method="POST" action="/orderitems/update">
+    <div class="grid">
+      <div>
+        <label>Select OrderItem</label>
+        <select name="OrderItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each orderItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Order</label>
+        <select name="OrderID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each orderOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Menu Item</label>
+        <select name="MenuItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each menuItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input name="Quantity" type="number" step="1" min="1" required />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;"><button class="primary" type="submit">Update</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Delete OrderItem</h3>
+  <form method="POST" action="/orderitems/delete" onsubmit="return confirm('Delete selected order item?');">
+    <label>Select OrderItem</label>
+    <select name="OrderItemID" required>
+      <option value="" disabled selected>Choose…</option>
+      {{#each orderItemOptions}}
+        <option value="{{value}}">{{label}}</option>
+      {{/each}}
+    </select>
+    <p style="margin:12px 0 0;"><button class="danger" type="submit">Delete</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Current OrderItems</h3>
+  {{#if rows.length}}
+    <table>
+      <thead>
+        <tr>
+          <th>OrderItem ID</th>
+          <th>Order</th>
+          <th>Menu Item</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <td>{{orderItemID}}</td>
+            <td>{{orderID}} — {{orderDateTime}}</td>
+            <td>{{menuItemID}} — {{itemName}}</td>
+            <td>{{quantity}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="muted">No order items found.</p>
+  {{/if}}
+</div>

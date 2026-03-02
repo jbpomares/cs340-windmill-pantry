@@ -1,0 +1,135 @@
+<h2>Products</h2>
+<p><a href="/">← Back to Home</a></p>
+
+<div class="card">
+  <h3 style="margin-top:0;">Insert Product</h3>
+  <form method="POST" action="/products/insert">
+    <div class="grid">
+      <div>
+        <label>Product Number (PK)</label>
+        <input name="ProductNumber" required />
+      </div>
+      <div>
+        <label>Product Name</label>
+        <input name="ProductName" />
+      </div>
+      <div>
+        <label>Safety Stock Level</label>
+        <input name="SafetyStockLevel" type="number" step="1" min="0" />
+      </div>
+      <div>
+        <label>Reorder Point</label>
+        <input name="ReorderPoint" type="number" step="1" min="0" />
+      </div>
+      <div>
+        <label>Standard Cost</label>
+        <input name="StandardCost" type="number" step="0.01" min="0" />
+      </div>
+      <div>
+        <label>List Price</label>
+        <input name="ListPrice" type="number" step="0.01" min="0" />
+      </div>
+      <div>
+        <label>Days To Manufacture</label>
+        <input name="DaysToManufacture" type="number" step="1" min="0" />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;">
+      <button class="primary" type="submit">Insert</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Update Product</h3>
+  <form method="POST" action="/products/update">
+    <div class="grid">
+      <div>
+        <label>Select Product</label>
+        <select name="ProductNumber" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each productOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Product Name (optional)</label>
+        <input name="ProductName" placeholder="(no change)" />
+      </div>
+      <div>
+        <label>Safety Stock Level (optional)</label>
+        <input name="SafetyStockLevel" type="number" step="1" min="0" placeholder="(no change)" />
+      </div>
+      <div>
+        <label>Reorder Point (optional)</label>
+        <input name="ReorderPoint" type="number" step="1" min="0" placeholder="(no change)" />
+      </div>
+      <div>
+        <label>Standard Cost (optional)</label>
+        <input name="StandardCost" type="number" step="0.01" min="0" placeholder="(no change)" />
+      </div>
+      <div>
+        <label>List Price (optional)</label>
+        <input name="ListPrice" type="number" step="0.01" min="0" placeholder="(no change)" />
+      </div>
+      <div>
+        <label>Days To Manufacture (optional)</label>
+        <input name="DaysToManufacture" type="number" step="1" min="0" placeholder="(no change)" />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;">
+      <button class="primary" type="submit">Update</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Delete Product</h3>
+  <form method="POST" action="/products/delete" onsubmit="return confirm('Delete selected product?');">
+    <label>Select Product</label>
+    <select name="ProductNumber" required>
+      <option value="" disabled selected>Choose…</option>
+      {{#each productOptions}}
+        <option value="{{value}}">{{label}}</option>
+      {{/each}}
+    </select>
+    <p style="margin:12px 0 0;">
+      <button class="danger" type="submit">Delete</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Current Products</h3>
+  {{#if rows.length}}
+    <table>
+      <thead>
+        <tr>
+          <th>Product Number</th>
+          <th>Product Name</th>
+          <th>Safety Stock Level</th>
+          <th>Reorder Point</th>
+          <th>Standard Cost</th>
+          <th>List Price</th>
+          <th>Days To Manufacture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <td>{{ProductNumber}}</td>
+            <td>{{ProductName}}</td>
+            <td>{{SafetyStockLevel}}</td>
+            <td>{{ReorderPoint}}</td>
+            <td>{{StandardCost}}</td>
+            <td>{{ListPrice}}</td>
+            <td>{{DaysToManufacture}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="muted">No products found.</p>
+  {{/if}}
+</div>

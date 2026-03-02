@@ -1,0 +1,117 @@
+<h2>MenuItemIngredients (M:M: MenuItems ↔ Ingredients)</h2>
+<p><a href="/">← Back to Home</a></p>
+
+<div class="card">
+  <h3 style="margin-top:0;">Insert Recipe Ingredient</h3>
+  <form method="POST" action="/menuitemingredients/insert">
+    <div class="grid">
+      <div>
+        <label>Menu Item</label>
+        <select name="MenuItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each menuItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Ingredient</label>
+        <select name="IngredientID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each ingredientOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Quantity Required</label>
+        <input name="QuantityRequired" type="number" step="0.01" min="0" required />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;"><button class="primary" type="submit">Insert</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Update Recipe Ingredient</h3>
+  <form method="POST" action="/menuitemingredients/update">
+    <div class="grid">
+      <div>
+        <label>Select Entry</label>
+        <select name="MenuItemIngredientID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each miiOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Menu Item</label>
+        <select name="MenuItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each menuItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Ingredient</label>
+        <select name="IngredientID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each ingredientOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label>Quantity Required</label>
+        <input name="QuantityRequired" type="number" step="0.01" min="0" required />
+      </div>
+    </div>
+    <p style="margin:12px 0 0;"><button class="primary" type="submit">Update</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Delete Recipe Ingredient</h3>
+  <form method="POST" action="/menuitemingredients/delete" onsubmit="return confirm('Delete selected entry?');">
+    <label>Select Entry</label>
+    <select name="MenuItemIngredientID" required>
+      <option value="" disabled selected>Choose…</option>
+      {{#each miiOptions}}
+        <option value="{{value}}">{{label}}</option>
+      {{/each}}
+    </select>
+    <p style="margin:12px 0 0;"><button class="danger" type="submit">Delete</button></p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Current MenuItemIngredients</h3>
+  {{#if rows.length}}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Menu Item</th>
+          <th>Ingredient</th>
+          <th>Qty Required</th>
+          <th>Unit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <td>{{menuItemIngredientID}}</td>
+            <td>{{menuItemID}} — {{itemName}}</td>
+            <td>{{ingredientID}} — {{ingredientName}}</td>
+            <td>{{quantityRequired}}</td>
+            <td>{{unit}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="muted">No recipe entries found.</p>
+  {{/if}}
+</div>

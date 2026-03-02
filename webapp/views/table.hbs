@@ -1,0 +1,122 @@
+<h2>{{title}}</h2>
+<p><a href="/">← Back to Home</a></p>
+
+{{#if description}}
+  <p class="muted">{{description}}</p>
+{{/if}}
+
+{{!-- Optional INSERT form --}}
+{{#if insert}}
+  <div class="card">
+    <h3 style="margin-top:0;">Insert {{title}}</h3>
+    <form method="POST" action="{{insert.action}}">
+      <div class="grid">
+        {{#each insert.fields}}
+          <div>
+            <label for="ins_{{name}}">{{label}}</label>
+
+            {{#if options}}
+              <select id="ins_{{name}}" name="{{name}}" required>
+                <option value="" selected disabled>Choose…</option>
+                {{#each options}}
+                  <option value="{{value}}">{{label}}</option>
+                {{/each}}
+              </select>
+            {{else}}
+              <input id="ins_{{name}}" name="{{name}}" type="{{type}}" {{#if required}}required{{/if}} />
+            {{/if}}
+
+          </div>
+        {{/each}}
+      </div>
+      <p style="margin:12px 0 0;">
+        <button class="primary" type="submit">Insert</button>
+      </p>
+    </form>
+  </div>
+{{/if}}
+
+{{!-- Optional UPDATE form (single-record update by PK selection) --}}
+{{#if update}}
+  <div class="card">
+    <h3 style="margin-top:0;">Update {{title}}</h3>
+    <form method="POST" action="{{update.action}}">
+      <div class="grid">
+        <div>
+          <label for="upd_pk">{{update.pkLabel}}</label>
+          <select id="upd_pk" name="{{update.pkName}}" required>
+            <option value="" selected disabled>Choose record…</option>
+            {{#each update.pkOptions}}
+              <option value="{{value}}">{{label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        {{#each update.fields}}
+          <div>
+            <label for="upd_{{name}}">{{label}}</label>
+
+            {{#if options}}
+              <select id="upd_{{name}}" name="{{name}}">
+                <option value="" selected>(no change)</option>
+                {{#each options}}
+                  <option value="{{value}}">{{label}}</option>
+                {{/each}}
+              </select>
+            {{else}}
+              <input id="upd_{{name}}" name="{{name}}" type="{{type}}" placeholder="(no change)" />
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+
+      <p style="margin:12px 0 0;">
+        <button class="primary" type="submit">Update</button>
+      </p>
+    </form>
+  </div>
+{{/if}}
+
+{{!-- Table display --}}
+<div class="card">
+  <h3 style="margin-top:0;">Current Rows</h3>
+
+  {{#if rows.length}}
+    <table>
+      <thead>
+        <tr>
+          {{#if headers}}
+            {{#each headers}}<th>{{this}}</th>{{/each}}
+          {{else}}
+            {{#each rows.[0]}}<th>{{@key}}</th>{{/each}}
+          {{/if}}
+
+          {{#if rowDelete}}
+            <th>Actions</th>
+          {{/if}}
+        </tr>
+      </thead>
+
+      <tbody>
+        {{#each rows}}
+          <tr>
+            {{#each this}}
+              <td>{{this}}</td>
+            {{/each}}
+
+            {{#if ../rowDelete}}
+              <td>
+                <form method="POST" action="{{../rowDelete.action}}" onsubmit="return confirm('Delete this row?');">
+                  <input type="hidden" name="{{../rowDelete.pkName}}" value="{{lookup this ../rowDelete.pkName}}" />
+                  <button class="danger" type="submit">Delete</button>
+                </form>
+              </td>
+            {{/if}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="muted">No rows returned.</p>
+  {{/if}}
+</div>

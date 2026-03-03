@@ -1,0 +1,136 @@
+<h2>MenuItems</h2>
+<p><a href="/">← Back to Home</a></p>
+
+<div class="card">
+  <h3 style="margin-top:0;">Insert Menu Item</h3>
+  <form method="POST" action="/menuitems/insert">
+    <div class="grid">
+      <div>
+        <label>Item Name</label>
+        <input name="itemName" required />
+      </div>
+
+      <div>
+        <label>Price</label>
+        <input name="price" type="number" step="0.01" min="0" required />
+      </div>
+
+      <div>
+        <label>Category</label>
+        <input name="category" placeholder="e.g., Breakfast, Lunch, Beverage" required />
+      </div>
+
+      <div>
+        <label>Available?</label>
+        <select name="isAvailable" required>
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+    </div>
+
+    <p style="margin:12px 0 0;">
+      <button class="primary" type="submit">Insert</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Update Menu Item</h3>
+  <p class="muted" style="margin-top:0;">
+    Select a MenuItem, then enter the full updated values (this update uses a stored procedure).
+  </p>
+
+  <form method="POST" action="/menuitems/update">
+    <div class="grid">
+      <div>
+        <label>Select Menu Item</label>
+        <select name="menuItemID" required>
+          <option value="" disabled selected>Choose…</option>
+          {{#each menuItemOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div>
+        <label>Item Name</label>
+        <input name="itemName" required />
+      </div>
+
+      <div>
+        <label>Price</label>
+        <input name="price" type="number" step="0.01" min="0" required />
+      </div>
+
+      <div>
+        <label>Category</label>
+        <input name="category" required />
+      </div>
+
+      <div>
+        <label>Available?</label>
+        <select name="isAvailable" required>
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+    </div>
+
+    <p style="margin:12px 0 0;">
+      <button class="primary" type="submit">Update</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Delete Menu Item</h3>
+  <p class="muted" style="margin-top:0;">
+    Deleting a MenuItem may also delete related rows in intersection tables due to FK cascade rules.
+  </p>
+
+  <form method="POST" action="/menuitems/delete" onsubmit="return confirm('Delete selected menu item?');">
+    <label>Select Menu Item</label>
+    <select name="menuItemID" required>
+      <option value="" disabled selected>Choose…</option>
+      {{#each menuItemOptions}}
+        <option value="{{value}}">{{label}}</option>
+      {{/each}}
+    </select>
+
+    <p style="margin:12px 0 0;">
+      <button class="danger" type="submit">Delete</button>
+    </p>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Current MenuItems</h3>
+
+  {{#if rows.length}}
+    <table>
+      <thead>
+        <tr>
+          <th>MenuItem ID</th>
+          <th>Item Name</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Available</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <td>{{menuItemID}}</td>
+            <td>{{itemName}}</td>
+            <td>{{price}}</td>
+            <td>{{category}}</td>
+            <td>{{#if isAvailable}}Yes{{else}}No{{/if}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="muted">No menu items found.</p>
+  {{/if}}
+</div>

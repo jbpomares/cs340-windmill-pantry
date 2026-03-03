@@ -30,16 +30,11 @@
 
     <nav>
       <a href="/">Home</a>
-      <a href="/customers">Customers</a>
       <a href="/orders">Orders</a>
-      <a href="/menuitems">MenuItems</a>
-      <a href="/products">Products</a>
+      <a href="/menuitems">MenuItems (CRUD)</a>
       <a href="/ingredients">Ingredients</a>
-      <a href="/invoices">Invoices</a>
-      <a href="/termscode">TermsCode</a>
-      <a href="/orderitems">OrderItems (M:M)</a>
-      <a href="/menuitemingredients">MenuItemIngredients (M:M)</a>
-      <a href="/invoicedetails">InvoiceDetails</a>
+      <a href="/orderitems">OrderItems (M:M CRUD)</a>
+      <a href="/menuitemingredients">MenuItemIngredients (M:M CRUD)</a>
     </nav>
 
     <hr />
@@ -47,7 +42,7 @@
     {{{body}}}
 
     <p class="muted" style="margin-top:24px;">
-      Note: M:M CUD operations use stored procedures. Additional entity operations may be expanded in later steps.
+      Note: CRUD operations use stored procedures; foreign keys are selected via dropdowns.
     </p>
   </body>
 </html>

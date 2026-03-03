@@ -1,32 +1,27 @@
 <h2>UI Pages Index</h2>
 <p class="muted">
-  Each link below displays table data (SELECT). Products and the M:M pages include INSERT/UPDATE/DELETE forms.
+  Each link below displays table data (SELECT). MenuItems includes CRUD; the M:M pages include CRUD via stored procedures.
 </p>
 
 <div class="card">
   <h3 style="margin-top:0;">Entities</h3>
   <ul>
-    <li><a href="/customers">Customers</a></li>
     <li><a href="/orders">Orders</a></li>
-    <li><a href="/menuitems">MenuItems</a></li>
-    <li><a href="/products">Products (CRUD)</a></li>
+    <li><a href="/menuitems">MenuItems (CRUD)</a></li>
     <li><a href="/ingredients">Ingredients</a></li>
-    <li><a href="/invoices">Invoices</a></li>
-    <li><a href="/termscode">TermsCode</a></li>
   </ul>
 
   <h3>Relationships / Line Items</h3>
   <ul>
     <li><a href="/orderitems">OrderItems (M:M between Orders and MenuItems) — CRUD</a></li>
     <li><a href="/menuitemingredients">MenuItemIngredients (M:M between MenuItems and Ingredients) — CRUD</a></li>
-    <li><a href="/invoicedetails">InvoiceDetails</a></li>
   </ul>
 </div>
 
 <div class="card">
   <h3 style="margin-top:0;">CRUD Coverage (UI)</h3>
   <ul>
-    <li>INSERT/UPDATE/DELETE demonstrated on at least one non-M:M entity (Products).</li>
+    <li>INSERT/UPDATE/DELETE demonstrated on a non-M:M entity (MenuItems) using stored procedures.</li>
     <li>INSERT/UPDATE/DELETE demonstrated on M:M intersection tables (OrderItems, MenuItemIngredients) using stored procedures.</li>
     <li>Foreign keys selected via dropdowns (no manual ID typing).</li>
   </ul>

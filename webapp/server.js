@@ -12,149 +12,111 @@ app.engine('.hbs', engine({ extname: '.hbs' }));
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-/* ---------------- HOME PAGE ---------------- */
-
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Home' });
-});
-
-/* ---------------- SIMPLE SELECT PAGES (generic table.hbs) ---------------- */
+/* ---------------- HELPERS ---------------- */
 
 function dbFail(res, err, routeName = 'route') {
   console.error(`Error on ${routeName}:`, err);
   res.status(500).send('An error occurred while executing the database queries.');
 }
 
-app.get('/customers', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM Customers;');
-    res.render('table', { title: 'Customers', rows });
-  } catch (err) { dbFail(res, err, '/customers'); }
+/* ---------------- HOME PAGE ---------------- */
+
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Home' });
 });
 
-app.get('/ingredients', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM Ingredients;');
-    res.render('table', { title: 'Ingredients', rows });
-  } catch (err) { dbFail(res, err, '/ingredients'); }
-});
-
-app.get('/invoicedetails', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM InvoiceDetails;');
-    res.render('table', { title: 'InvoiceDetails', rows });
-  } catch (err) { dbFail(res, err, '/invoicedetails'); }
-});
-
-app.get('/invoices', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM Invoices;');
-    res.render('table', { title: 'Invoices', rows });
-  } catch (err) { dbFail(res, err, '/invoices'); }
-});
-
-app.get('/menuitems', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM MenuItems;');
-    res.render('table', { title: 'MenuItems', rows });
-  } catch (err) { dbFail(res, err, '/menuitems'); }
-});
+/* ---------------- ORDERS (SELECT) ---------------- */
 
 app.get('/orders', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM Orders;');
+    const [rows] = await db.query('SELECT * FROM Orders ORDER BY orderDateTime DESC;');
     res.render('table', { title: 'Orders', rows });
   } catch (err) { dbFail(res, err, '/orders'); }
 });
 
-app.get('/termscode', async (req, res) => {
+/* ---------------- INGREDIENTS (SELECT) ---------------- */
+
+app.get('/ingredients', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM TermsCode;');
-    res.render('table', { title: 'TermsCode', rows });
-  } catch (err) { dbFail(res, err, '/termscode'); }
+    const [rows] = await db.query('SELECT * FROM Ingredients ORDER BY ingredientName;');
+    res.render('table', { title: 'Ingredients', rows });
+  } catch (err) { dbFail(res, err, '/ingredients'); }
 });
 
-/* ---------------- PRODUCTS (non-M:M CRUD demo) ---------------- */
+/* ---------------- MENUITEMS (CRUD - non M:M) ----------------
+   IMPORTANT: These POST routes assume you add stored procedures:
+   - sp_addMenuItem
+   - sp_updateMenuItem
+   - sp_deleteMenuItem
+*/
 
-app.get('/products', async (req, res) => {
+app.get('/menuitems', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM Products ORDER BY ProductName;');
+    // Display
+    const [rows] = await db.query(`
+      SELECT menuItemID, itemName, price, category, isAvailable
+      FROM MenuItems
+      ORDER BY itemName;
+    `);
 
-    const [productRows] = await db.query(
-      'SELECT ProductNumber, ProductName FROM Products ORDER BY ProductName;'
-    );
+    // Dropdowns
+    const [menuItemRows] = await db.query(`
+      SELECT menuItemID, itemName
+      FROM MenuItems
+      ORDER BY itemName;
+    `);
 
-    const productOptions = productRows.map(r => ({
-      value: r.ProductNumber,
-      label: `${r.ProductName || '(No name)'} — ${r.ProductNumber}`
+    const menuItemOptions = menuItemRows.map(m => ({
+      value: m.menuItemID,
+      label: `${m.itemName} (ID: ${m.menuItemID})`
     }));
 
-    res.render('products', { title: 'Products', rows, productOptions });
-  } catch (err) { dbFail(res, err, '/products'); }
+    res.render('menuitems', { title: 'MenuItems', rows, menuItemOptions });
+  } catch (err) { dbFail(res, err, '/menuitems'); }
 });
 
-app.post('/products/insert', async (req, res) => {
+app.post('/menuitems/insert', async (req, res) => {
   try {
-    const {
-      ProductNumber, ProductName,
-      SafetyStockLevel, ReorderPoint,
-      StandardCost, ListPrice,
-      DaysToManufacture
-    } = req.body;
+    const { itemName, price, category, isAvailable } = req.body;
 
-    await db.query(
-      `INSERT INTO Products
-       (ProductNumber, ProductName, SafetyStockLevel, ReorderPoint, StandardCost, ListPrice, DaysToManufacture)
-       VALUES (?, ?, ?, ?, ?, ?, ?);`,
-      [
-        ProductNumber,
-        ProductName || null,
-        SafetyStockLevel === '' ? null : Number(SafetyStockLevel),
-        ReorderPoint === '' ? null : Number(ReorderPoint),
-        StandardCost === '' ? null : Number(StandardCost),
-        ListPrice === '' ? null : Number(ListPrice),
-        DaysToManufacture === '' ? null : Number(DaysToManufacture)
-      ]
-    );
+    // Convert checkbox/select to boolean-ish value for SQL
+    const isAvail = (isAvailable === 'true' || isAvailable === '1' || isAvailable === 'on') ? 1 : 0;
 
-    res.redirect('/products');
-  } catch (err) { dbFail(res, err, '/products/insert'); }
+    await db.query('CALL sp_addMenuItem(?, ?, ?, ?);', [
+      itemName,
+      Number(price),
+      category,
+      isAvail
+    ]);
+
+    res.redirect('/menuitems');
+  } catch (err) { dbFail(res, err, '/menuitems/insert'); }
 });
 
-app.post('/products/update', async (req, res) => {
+app.post('/menuitems/update', async (req, res) => {
   try {
-    const {
-      ProductNumber, ProductName,
-      SafetyStockLevel, ReorderPoint,
-      StandardCost, ListPrice,
-      DaysToManufacture
-    } = req.body;
+    const { menuItemID, itemName, price, category, isAvailable } = req.body;
 
-    const fields = [];
-    const params = [];
+    const isAvail = (isAvailable === 'true' || isAvailable === '1' || isAvailable === 'on') ? 1 : 0;
 
-    if (ProductName && ProductName.trim() !== '') { fields.push('ProductName = ?'); params.push(ProductName.trim()); }
-    if (SafetyStockLevel !== '' && SafetyStockLevel !== undefined) { fields.push('SafetyStockLevel = ?'); params.push(Number(SafetyStockLevel)); }
-    if (ReorderPoint !== '' && ReorderPoint !== undefined) { fields.push('ReorderPoint = ?'); params.push(Number(ReorderPoint)); }
-    if (StandardCost !== '' && StandardCost !== undefined) { fields.push('StandardCost = ?'); params.push(Number(StandardCost)); }
-    if (ListPrice !== '' && ListPrice !== undefined) { fields.push('ListPrice = ?'); params.push(Number(ListPrice)); }
-    if (DaysToManufacture !== '' && DaysToManufacture !== undefined) { fields.push('DaysToManufacture = ?'); params.push(Number(DaysToManufacture)); }
+    await db.query('CALL sp_updateMenuItem(?, ?, ?, ?, ?);', [
+      Number(menuItemID),
+      itemName,
+      Number(price),
+      category,
+      isAvail
+    ]);
 
-    if (fields.length === 0) return res.redirect('/products');
-
-    params.push(ProductNumber);
-
-    await db.query(`UPDATE Products SET ${fields.join(', ')} WHERE ProductNumber = ?;`, params);
-    res.redirect('/products');
-  } catch (err) { dbFail(res, err, '/products/update'); }
+    res.redirect('/menuitems');
+  } catch (err) { dbFail(res, err, '/menuitems/update'); }
 });
 
-app.post('/products/delete', async (req, res) => {
+app.post('/menuitems/delete', async (req, res) => {
   try {
-    const { ProductNumber } = req.body;
-    await db.query('DELETE FROM Products WHERE ProductNumber = ?;', [ProductNumber]);
-    res.redirect('/products');
-  } catch (err) { dbFail(res, err, '/products/delete'); }
+    const { menuItemID } = req.body;
+    await db.query('CALL sp_deleteMenuItem(?);', [Number(menuItemID)]);
+    res.redirect('/menuitems');
+  } catch (err) { dbFail(res, err, '/menuitems/delete'); }
 });
 
 /* ---------------- ORDERITEMS (M:M CRUD via stored procedures) ---------------- */
@@ -346,11 +308,11 @@ app.post('/menuitemingredients/delete', async (req, res) => {
   } catch (err) { dbFail(res, err, '/menuitemingredients/delete'); }
 });
 
-/* ---------------- OPTIONAL: RESET DATABASE (stored procedure) ---------------- */
+/* ---------------- RESET DATABASE (stored procedure) ---------------- */
 
 app.post('/reset', async (req, res) => {
   try {
-    await db.query('CALL sp_resetDatabase();');
+    await db.query('CALL sp_resetDatabaseDDL();');
     res.redirect('/');
   } catch (err) { dbFail(res, err, '/reset'); }
 });

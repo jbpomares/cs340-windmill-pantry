@@ -1,0 +1,332 @@
+-- Windmill Pantry Restaurant Order / Inventory Management
+-- Group 91
+-- Step 3
+
+-- Orders page
+SELECT orderID, orderDateTime, orderTotal, orderStatus
+FROM Orders
+ORDER BY orderDateTime DESC;
+
+-- MenuItems page
+SELECT menuItemID, itemName, price, category, isAvailable
+FROM MenuItems
+ORDER BY itemName;
+
+-- Ingredients page
+SELECT ingredientID, ingredientName, unit, quantityInStock, reorderLevel
+FROM Ingredients
+ORDER BY ingredientName;
+
+-- OrderItems page (M:M Orders ↔ MenuItems)
+SELECT
+  oi.orderItemID,
+  o.orderID,
+  o.orderDateTime,
+  mi.menuItemID,
+  mi.itemName,
+  oi.quantity
+FROM OrderItems oi
+JOIN Orders o      ON oi.orderID = o.orderID
+JOIN MenuItems mi  ON oi.menuItemID = mi.menuItemID
+ORDER BY o.orderDateTime DESC, oi.orderItemID;
+
+-- MenuItemIngredients page (M:M MenuItems ↔ Ingredients)
+SELECT
+  mii.menuItemIngredientID,
+  mi.menuItemID,
+  mi.itemName,
+  i.ingredientID,
+  i.ingredientName,
+  mii.quantityRequired,
+  i.unit
+FROM MenuItemIngredients mii
+JOIN MenuItems mi   ON mii.menuItemID = mi.menuItemID
+JOIN Ingredients i  ON mii.ingredientID = i.ingredientID
+ORDER BY mi.itemName, i.ingredientName;
+
+-- Dropdown population queries 
+SELECT orderID, orderDateTime
+FROM Orders
+ORDER BY orderDateTime DESC;
+
+SELECT menuItemID, itemName
+FROM MenuItems
+ORDER BY itemName;
+
+SELECT ingredientID, ingredientName
+FROM Ingredients
+ORDER BY ingredientName;
+
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_resetDatabaseDDL $$
+CREATE PROCEDURE sp_resetDatabaseDDL()
+BEGIN
+  -- Disable FK checks to allow drops in any order
+  SET FOREIGN_KEY_CHECKS = 0;
+
+  -- Drop tables (dependency order)
+  DROP TABLE IF EXISTS MenuItemIngredients;
+  DROP TABLE IF EXISTS OrderItems;
+  DROP TABLE IF EXISTS Ingredients;
+  DROP TABLE IF EXISTS MenuItems;
+  DROP TABLE IF EXISTS Orders;
+
+  -- Recreate tables
+  CREATE TABLE Orders (
+      orderID INT AUTO_INCREMENT PRIMARY KEY,
+      orderDateTime DATETIME NOT NULL,
+      orderTotal DECIMAL(8,2) NOT NULL,
+      orderStatus VARCHAR(20) NOT NULL
+  ) ENGINE=InnoDB;
+
+  CREATE TABLE MenuItems (
+      menuItemID INT AUTO_INCREMENT PRIMARY KEY,
+      itemName VARCHAR(100) NOT NULL,
+      price DECIMAL(8,2) NOT NULL,
+      category VARCHAR(50) NOT NULL,
+      isAvailable BOOLEAN NOT NULL
+  ) ENGINE=InnoDB;
+
+  CREATE TABLE Ingredients (
+      ingredientID INT AUTO_INCREMENT PRIMARY KEY,
+      ingredientName VARCHAR(100) NOT NULL,
+      unit VARCHAR(20) NOT NULL,
+      quantityInStock DECIMAL(8,2) NOT NULL,
+      reorderLevel DECIMAL(8,2) NOT NULL
+  ) ENGINE=InnoDB;
+
+  CREATE TABLE OrderItems (
+      orderItemID INT AUTO_INCREMENT PRIMARY KEY,
+      orderID INT NOT NULL,
+      menuItemID INT NOT NULL,
+      quantity INT NOT NULL,
+      CONSTRAINT fk_orderitems_orders
+          FOREIGN KEY (orderID)
+          REFERENCES Orders(orderID)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE,
+      CONSTRAINT fk_orderitems_menuitems
+          FOREIGN KEY (menuItemID)
+          REFERENCES MenuItems(menuItemID)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+  ) ENGINE=InnoDB;
+
+  CREATE TABLE MenuItemIngredients (
+      menuItemIngredientID INT AUTO_INCREMENT PRIMARY KEY,
+      menuItemID INT NOT NULL,
+      ingredientID INT NOT NULL,
+      quantityRequired DECIMAL(8,2) NOT NULL,
+      CONSTRAINT fk_menuitemingredients_menuitems
+          FOREIGN KEY (menuItemID)
+          REFERENCES MenuItems(menuItemID)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE,
+      CONSTRAINT fk_menuitemingredients_ingredients
+          FOREIGN KEY (ingredientID)
+          REFERENCES Ingredients(ingredientID)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE,
+      CONSTRAINT uq_menuitem_ingredient UNIQUE (menuItemID, ingredientID)
+  ) ENGINE=InnoDB;
+
+  -- Reinsert sample data
+  INSERT INTO Orders (orderDateTime, orderTotal, orderStatus) VALUES
+  ('2026-01-10 08:15:00', 18.50, 'Completed'),
+  ('2026-01-10 09:02:00', 12.00, 'Completed'),
+  ('2026-01-10 10:30:00', 9.75, 'Canceled');
+
+  INSERT INTO MenuItems (itemName, price, category, isAvailable) VALUES
+  ('Breakfast Sandwich', 7.50, 'Breakfast', TRUE),
+  ('Avocado Toast', 6.25, 'Breakfast', TRUE),
+  ('Iced Latte', 4.75, 'Beverage', TRUE),
+  ('Tomato Soup', 5.50, 'Lunch', FALSE);
+
+  INSERT INTO Ingredients (ingredientName, unit, quantityInStock, reorderLevel) VALUES
+  ('Bread', 'slices', 200.00, 50.00),
+  ('Eggs', 'units', 120.00, 30.00),
+  ('Avocado', 'grams', 5000.00, 1000.00),
+  ('Milk', 'liters', 25.00, 5.00),
+  ('Coffee Beans', 'grams', 3000.00, 500.00);
+
+  INSERT INTO OrderItems (orderID, menuItemID, quantity) VALUES
+  (1, 1, 1),
+  (1, 3, 1),
+  (2, 2, 1),
+  (2, 3, 1);
+
+  INSERT INTO MenuItemIngredients (menuItemID, ingredientID, quantityRequired) VALUES
+  (1, 1, 2.00),
+  (1, 2, 1.00),
+  (2, 1, 1.00),
+  (2, 3, 75.00),
+  (3, 4, 0.25),
+  (3, 5, 18.00);
+
+  -- Re-enable FK checks
+  SET FOREIGN_KEY_CHECKS = 1;
+END $$
+
+-- ---------- MenuItems (non-M:M) CRUD ----------
+DROP PROCEDURE IF EXISTS sp_addMenuItem $$
+CREATE PROCEDURE sp_addMenuItem(
+    IN p_itemName VARCHAR(100),
+    IN p_price DECIMAL(8,2),
+    IN p_category VARCHAR(50),
+    IN p_isAvailable BOOLEAN
+)
+BEGIN
+    INSERT INTO MenuItems (itemName, price, category, isAvailable)
+    VALUES (p_itemName, p_price, p_category, p_isAvailable);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_updateMenuItem $$
+CREATE PROCEDURE sp_updateMenuItem(
+    IN p_menuItemID INT,
+    IN p_itemName VARCHAR(100),
+    IN p_price DECIMAL(8,2),
+    IN p_category VARCHAR(50),
+    IN p_isAvailable BOOLEAN
+)
+BEGIN
+    UPDATE MenuItems
+    SET itemName = p_itemName,
+        price = p_price,
+        category = p_category,
+        isAvailable = p_isAvailable
+    WHERE menuItemID = p_menuItemID;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_deleteMenuItem $$
+CREATE PROCEDURE sp_deleteMenuItem(
+    IN p_menuItemID INT
+)
+BEGIN
+    DELETE FROM MenuItems
+    WHERE menuItemID = p_menuItemID;
+END $$
+
+-- ---------- OrderItems (M:M) CRUD ----------
+DROP PROCEDURE IF EXISTS sp_addOrderItem $$
+CREATE PROCEDURE sp_addOrderItem(
+    IN p_orderID INT,
+    IN p_menuItemID INT,
+    IN p_quantity INT
+)
+BEGIN
+    INSERT INTO OrderItems (orderID, menuItemID, quantity)
+    VALUES (p_orderID, p_menuItemID, p_quantity);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_updateOrderItem $$
+CREATE PROCEDURE sp_updateOrderItem(
+    IN p_orderItemID INT,
+    IN p_orderID INT,
+    IN p_menuItemID INT,
+    IN p_quantity INT
+)
+BEGIN
+    UPDATE OrderItems
+    SET orderID = p_orderID,
+        menuItemID = p_menuItemID,
+        quantity = p_quantity
+    WHERE orderItemID = p_orderItemID;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_deleteOrderItem $$
+CREATE PROCEDURE sp_deleteOrderItem(
+    IN p_orderItemID INT
+)
+BEGIN
+    DELETE FROM OrderItems
+    WHERE orderItemID = p_orderItemID;
+END $$
+
+-- ---------- MenuItemIngredients (M:M) CRUD ----------
+DROP PROCEDURE IF EXISTS sp_addMenuItemIngredient $$
+CREATE PROCEDURE sp_addMenuItemIngredient(
+    IN p_menuItemID INT,
+    IN p_ingredientID INT,
+    IN p_quantityRequired DECIMAL(8,2)
+)
+BEGIN
+    INSERT INTO MenuItemIngredients (menuItemID, ingredientID, quantityRequired)
+    VALUES (p_menuItemID, p_ingredientID, p_quantityRequired);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_updateMenuItemIngredient $$
+CREATE PROCEDURE sp_updateMenuItemIngredient(
+    IN p_menuItemIngredientID INT,
+    IN p_menuItemID INT,
+    IN p_ingredientID INT,
+    IN p_quantityRequired DECIMAL(8,2)
+)
+BEGIN
+    UPDATE MenuItemIngredients
+    SET menuItemID = p_menuItemID,
+        ingredientID = p_ingredientID,
+        quantityRequired = p_quantityRequired
+    WHERE menuItemIngredientID = p_menuItemIngredientID;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_deleteMenuItemIngredient $$
+CREATE PROCEDURE sp_deleteMenuItemIngredient(
+    IN p_menuItemIngredientID INT
+)
+BEGIN
+    DELETE FROM MenuItemIngredients
+    WHERE menuItemIngredientID = p_menuItemIngredientID;
+END $$
+
+BEGIN
+    -- Remove children first to satisfy FK constraints
+    DELETE FROM MenuItemIngredients;
+    DELETE FROM OrderItems;
+    DELETE FROM Ingredients;
+    DELETE FROM MenuItems;
+    DELETE FROM Orders;
+
+    -- Reset AUTO_INCREMENT counters
+    ALTER TABLE Orders AUTO_INCREMENT = 1;
+    ALTER TABLE MenuItems AUTO_INCREMENT = 1;
+    ALTER TABLE Ingredients AUTO_INCREMENT = 1;
+    ALTER TABLE OrderItems AUTO_INCREMENT = 1;
+    ALTER TABLE MenuItemIngredients AUTO_INCREMENT = 1;
+
+    -- Re-insert the same sample data as in DDL.sql
+    INSERT INTO Orders (orderDateTime, orderTotal, orderStatus) VALUES
+    ('2026-01-10 08:15:00', 18.50, 'Completed'),
+    ('2026-01-10 09:02:00', 12.00, 'Completed'),
+    ('2026-01-10 10:30:00', 9.75, 'Canceled');
+
+    INSERT INTO MenuItems (itemName, price, category, isAvailable) VALUES
+    ('Breakfast Sandwich', 7.50, 'Breakfast', TRUE),
+    ('Avocado Toast', 6.25, 'Breakfast', TRUE),
+    ('Iced Latte', 4.75, 'Beverage', TRUE),
+    ('Tomato Soup', 5.50, 'Lunch', FALSE);
+
+    INSERT INTO Ingredients (ingredientName, unit, quantityInStock, reorderLevel) VALUES
+    ('Bread', 'slices', 200.00, 50.00),
+    ('Eggs', 'units', 120.00, 30.00),
+    ('Avocado', 'grams', 5000.00, 1000.00),
+    ('Milk', 'liters', 25.00, 5.00),
+    ('Coffee Beans', 'grams', 3000.00, 500.00);
+
+    INSERT INTO OrderItems (orderID, menuItemID, quantity) VALUES
+    (1, 1, 1),
+    (1, 3, 1),
+    (2, 2, 1),
+    (2, 3, 1);
+
+    INSERT INTO MenuItemIngredients (menuItemID, ingredientID, quantityRequired) VALUES
+    (1, 1, 2.00),
+    (1, 2, 1.00),
+    (2, 1, 1.00),
+    (2, 3, 75.00),
+    (3, 4, 0.25),
+    (3, 5, 18.00);
+END $$
+
+DELIMITER ;

@@ -1,15 +1,3 @@
-Absolutely — here’s a clean, professional, portfolio-quality README you can paste directly into your GitHub repo.
-
-You can create it with:
-
-```bash
-nano README.md
-```
-
-Then paste everything below.
-
----
-
 # Windmill Pantry — Restaurant Order & Inventory Management System
 
 **CS340: Introduction to Databases — Oregon State University**

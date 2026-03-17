@@ -6,6 +6,36 @@ A full-stack web application and relational database system designed to support 
 
 This project demonstrates database design, normalization, CRUD operations, many-to-many relationship management, stored procedures, and deployment on a Linux server environment.
 
+Citations: 
+
+Microsoft. "GitHub Copilot".  
+https://github.com/features/copilot  
+Retrieved: February, 2026  
+Type: AI-assisted code completion tool  
+Author: Microsoft  
+Notes: Used for code suggestions and syntax assistance during development.
+
+OpenAI. "ChatGPT (GPT-5.3)".  
+https://chat.openai.com/  
+Retrieved: March, 2026  
+Type: AI-assisted development tool (code guidance, debugging, and project structuring)  
+Author: OpenAI  
+Notes: Used for guidance on Express.js routing, MySQL stored procedures, and overall project organization.
+
+Express.js. "Express Web Framework Documentation".  
+https://expressjs.com/  
+Retrieved: February - March, 2026  
+Type: Documentation  
+Author: OpenJS Foundation  
+Notes: Referenced for routing, middleware, and server setup.
+
+MariaDB Foundation. "MariaDB Server Documentation".  
+https://mariadb.com/kb/en/documentation/  
+Retrieved: February - March, 2026  
+Type: Documentation  
+Author: MariaDB Foundation  
+Notes: Used for stored procedures, constraints, and SQL syntax.
+
 ---
 
 ## 📌 Project Overview

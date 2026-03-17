@@ -1,3 +1,19 @@
+-- Windmill Pantry Restaurant Order / Inventory Management
+-- Group 91
+
+/*
+Citation / Originality:
+This file was developed by Group 91 for the CS340 final project.
+Any external guidance or AI-assisted drafting was reviewed, modified, and integrated by the team.
+
+Citations:
+OpenAI. "ChatGPT (GPT-5.3)". https://chat.openai.com/
+Retrieved: Febraury - March, 2026
+Type: AI-assisted development tool (stored procedures / PL-SQL)
+Author: OpenAI
+Notes: Used for guidance on writing stored procedures for CRUD operations and implementing a database reset procedure using DDL statements and foreign key handling.
+*/
+
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_resetDatabaseDDL $$

@@ -1,31 +1,24 @@
+<!--
+Citation:
+OpenAI. "ChatGPT (GPT-5.3)". https://chat.openai.com/
+Retrieved: Feb. 28th, 2026
+Type: AI-assisted HTML/CSS layout guidance
+Author: OpenAI
+Notes: Used for guidance on layout structure and styling.
+-->
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/style.css">
     <title>{{#if title}}{{title}} — {{/if}}Windmill Pantry Admin</title>
-    <style>
-      body { font-family: Arial, sans-serif; margin: 24px; }
-      header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 16px; }
-      nav a { margin-right: 12px; display: inline-block; margin-bottom: 6px; }
-      table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-      th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
-      th { background: #f5f5f5; text-align: left; }
-      .card { border: 1px solid #e5e5e5; padding: 12px; border-radius: 10px; margin: 16px 0; }
-      .grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; }
-      label { font-size: 0.9rem; display: block; margin-bottom: 4px; }
-      input, select { width: 100%; padding: 8px; }
-      button { padding: 8px 12px; cursor: pointer; }
-      .muted { color: #666; }
-      .danger { background: #b00020; color: white; border: none; border-radius: 6px; }
-      .primary { background: #1a73e8; color: white; border: none; border-radius: 6px; }
-      .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eee; font-size: 12px; }
-    </style>
   </head>
   <body>
     <header>
       <h1 style="margin:0;">Windmill Pantry — Admin UI</h1>
-      <span class="pill">CS340 Step 3</span>
+      <span class="pill">CS340 Final Project</span>
     </header>
 
     <nav>

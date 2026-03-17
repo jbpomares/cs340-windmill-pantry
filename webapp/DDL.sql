@@ -1,6 +1,26 @@
 -- Windmill Pantry Restaurant Order / Inventory Management
 -- Group 91
 
+/*
+Citation / Originality:
+This file was developed by Group 91 for the CS340 final project.
+Any external guidance or AI-assisted drafting was reviewed, modified, and integrated by the team.
+
+Citations:
+OpenAI. "ChatGPT (GPT-5.3)". https://chat.openai.com/
+Retrieved: February - March, 2026
+Type: AI-assisted development tool (SQL schema design)
+Author: OpenAI
+Notes: Used for guidance on structuring table definitions, primary/foreign key relationships, and applying constraints such as ON DELETE CASCADE and composite UNIQUE keys.
+
+
+MariaDB Foundation. "MariaDB Server Documentation".  
+https://mariadb.com/kb/en/documentation/  
+Retrieved: February - March, 2026  
+Type: Documentation  
+Author: MariaDB Foundation  
+Notes: Used for stored procedures, constraints, and SQL syntax.
+*/
 
 DELIMITER $$
 

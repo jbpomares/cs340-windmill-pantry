@@ -1,6 +1,18 @@
 -- Windmill Pantry Restaurant Order / Inventory Management
 -- Group 91
--- Step 4
+
+/*
+Citation / Originality:
+This file was developed by Group 91 for the CS340 final project.
+Any external guidance or AI-assisted drafting was reviewed, modified, and integrated by the team.
+
+Citations:
+OpenAI. "ChatGPT (GPT-5.3)". https://chat.openai.com/
+Retrieved: February - March, 2026
+Type: AI-assisted development tool (SQL query development)
+Author: OpenAI
+Notes: Used for guidance on constructing SELECT queries, JOIN operations for relational data display, and organizing queries for use in the web application.
+*/
 
 -- Orders page
 SELECT orderID, orderDateTime, orderTotal, orderStatus

@@ -1,9 +1,23 @@
+/*
+Citation / Originality:
+This file was developed by Group 91 for the CS340 final project.
+Any external guidance or AI-assisted drafting was reviewed, modified, and integrated by the team.
+Citation:
+OpenAI. "ChatGPT (GPT-5.3)". https://chat.openai.com/
+Retrieved: Feb. 25th, 2026
+Type: AI-assisted code guidance (Node.js / Express server structure)
+Author: OpenAI
+Notes: Used for guidance on structuring Express routes and debugging database integration.
+*/
+
 const path = require('path');
 const express = require('express');
 const { engine } = require('express-handlebars');
 const db = require('./db-connector');
 
 const app = express();
+
+app.use(express.static('public'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
